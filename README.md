@@ -69,5 +69,12 @@ func Database() (*sql.DB, error) {
 
 ```./passwordgenerator```
 
-if you want to create a command line for that send the ./passwordgenerator to ~/bin
+if you want to create a command line to use the app
+
+```sudo mv passwordgenerator /usr/local/bin/```
+
+and verify if you have in your ~/.bashrc or ~/.zshrc the following line
+
+```export PATH="/usr/local/bin:$PATH"```
+
 
