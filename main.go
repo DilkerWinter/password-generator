@@ -310,40 +310,52 @@ func searchAllPasswords() {
 		return
 	}
 
-	fmt.Printf("\n---- List of Passwords ----\n")
-	for i, password := range passwords {
-		fmt.Printf("[%d] %s: %s\n", i+1, password.Name, password.Password)
-	}
+	for {
+		clearTerminal()
 
-	fmt.Printf("\nChoose a password to copy (enter the number): ")
-	var choice int
-	_, err = fmt.Scan(&choice)
-	if err != nil || choice < 1 || choice > len(passwords) {
-		fmt.Println("Invalid choice, please try again.")
-		return
-	}
-
-	passwordToCopy := passwords[choice-1].Password
-
-	fmt.Printf("Do you want to copy the password for '%s' to clipboard? (y/n): ", passwords[choice-1].Name)
-	var clipboardInput string
-	fmt.Scan(&clipboardInput)
-	clipboardInput = strings.ToLower(clipboardInput)
-
-	if clipboardInput == "y" || clipboardInput == "yes" {
-		err := clipboard.WriteAll(passwordToCopy)
-		if err != nil {
-			fmt.Printf("Error copying to clipboard: %v\n", err)
-		} else {
-			fmt.Printf("Password for '%s' copied to clipboard!\n", passwords[choice-1].Name)
+		fmt.Printf("\n---- List of Passwords ----\n")
+		for i, password := range passwords {
+			fmt.Printf("[%d] %s: %s\n", i+1, password.Name, password.Password)
 		}
-	} else {
-		fmt.Println("Password not copied.")
-	}
 
-	fmt.Println("Press any key to continue...")
-	_, _ = bufio.NewReader(os.Stdin).ReadByte()
+		fmt.Println("\n[0] Exit")
+		fmt.Printf("\nChoose a password to copy (enter the number): ")
+		var choice int
+		_, err := fmt.Scan(&choice)
+
+		if err != nil || choice < 0 || choice > len(passwords) {
+			fmt.Println("Invalid choice, please try again.")
+			continue
+		}
+
+		if choice == 0 {
+			fmt.Println("Exiting...")
+			break
+		}
+
+		passwordToCopy := passwords[choice-1].Password
+
+		fmt.Printf("Do you want to copy the password for '%s' to clipboard? (y/n): ", passwords[choice-1].Name)
+		var clipboardInput string
+		fmt.Scan(&clipboardInput)
+		clipboardInput = strings.ToLower(clipboardInput)
+
+		if clipboardInput == "y" || clipboardInput == "yes" {
+			err := clipboard.WriteAll(passwordToCopy)
+			if err != nil {
+				fmt.Printf("Error copying to clipboard: %v\n", err)
+			} else {
+				fmt.Printf("Password for '%s' copied to clipboard!\n", passwords[choice-1].Name)
+			}
+		} else {
+			fmt.Println("Password not copied.")
+		}
+
+		fmt.Println("Press any key to continue...")
+		_, _ = bufio.NewReader(os.Stdin).ReadByte()
+	}
 }
+
 
 
 func searchPasswordMenu() {
@@ -351,7 +363,8 @@ func searchPasswordMenu() {
 	fmt.Printf("----Password Generator---- \n\n")
 	fmt.Printf("[1] - Search Passwords By Name\n")
 	fmt.Printf("[2] - Search All Passwords\n")
-	fmt.Printf("[3] - Go Back\n")
+	fmt.Printf("[0] - Go Back\n")
+	fmt.Print("Choose an option: ")
 
 	reader := bufio.NewReader(os.Stdin)
 	optionStr, _, err := reader.ReadRune()
@@ -366,7 +379,7 @@ func searchPasswordMenu() {
 		searchPasswordByName()
 	case '2':
 		searchAllPasswords()
-	case '3':
+	case '0':
 		return
 	default:
 		fmt.Println("Invalid option. Please choose a valid option.")
