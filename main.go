@@ -8,7 +8,7 @@ import (
 	"math/big"
 	"os"
 	"os/exec"
-	"password-generator/database"
+	databaseConn "password-generator/database"
 	"strconv"
 	"strings"
 
@@ -16,7 +16,7 @@ import (
 )
 
 func passwordToDatabase(password string, passwordName string) error {
-	db, err := database.Database()
+	db, err := databaseConn.ConnectToDatabase()
 	if err != nil {
 		return fmt.Errorf("Could not connect to database : %v", err)
 	}
@@ -196,7 +196,7 @@ func clearTerminal() {
 }
 
 func searchPasswordByNameDatabase(passwordName string) string {
-	db, err := database.Database()
+	db, err := databaseConn.ConnectToDatabase()
 	if err != nil {
 		return fmt.Sprintf("Could not connect to database: %v", err)
 	}
@@ -263,7 +263,7 @@ func searchAllPasswordsDatabase() ([]struct {
     Name     string
     Password string
 }, error) {
-	db, err := database.Database()
+	db, err := databaseConn.ConnectToDatabase()
 	if err != nil {
 		return nil, fmt.Errorf("Could not connect to database: %v", err)
 	}
