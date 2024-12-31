@@ -14,11 +14,11 @@ A simple and customizable Password Generator created in GoLang for use in the te
 
 1 - Clone the repository:
 
-```bash git clone git@github.com:DilkerWinter/password-generator.git ```
+```git clone git@github.com:DilkerWinter/password-generator.git ```
 
 2 - Change directory to the project
 
-```bash cd password-generator ```
+```cd password-generator ```
 
 
 3 - Set up PostgreSQL database
@@ -63,11 +63,11 @@ func Database() (*sql.DB, error) {
 
 6 - Build the project
 
-```bash go build -o passwordgenerator main.go ```
+```go build -o passwordgenerator main.go ```
 
 7 - Now you can run the app
 
-```bash ./passwordgenerator```
+```./passwordgenerator```
 
 if you want to create a command line for that send the ./passwordgenerator to ~/bin
 
