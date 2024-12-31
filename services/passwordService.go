@@ -88,3 +88,28 @@ func PasswordToDatabase(password string, passwordName string) error {
 
 	return nil
 }
+
+func DeletePasswordByNameDatabase(passwordName string) error {
+	db, err := databaseConn.ConnectToDatabase()
+	if err != nil {
+		return fmt.Errorf("Could not connect to database: %v", err)
+	}
+	defer db.Close()
+
+	query := "DELETE FROM passwords WHERE password_name = $1"
+	result, err := db.Exec(query, passwordName)
+	if err != nil {
+		return fmt.Errorf("Could not delete password: %v", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("Could not get the number of rows affected: %v", err)
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("No password found with name: %v", passwordName)
+	}
+
+	return nil
+}

@@ -20,6 +20,7 @@ func MainMenu () {
 		fmt.Printf("----- Password Generator ----- \n\n")
 		fmt.Printf("[1] - Generate New Password\n")
 		fmt.Printf("[2] - Search Password\n")
+		fmt.Printf("[3] - Delete Password\n")
 		fmt.Printf("\n[0] - Exit\n")
 		fmt.Print("\nChoose an option: ")
 
@@ -36,6 +37,8 @@ func MainMenu () {
 			AddPasswordMenu()
 		case '2':
 			SearchPasswordMenu()
+		case '3':
+			DeletePasswordMenu()
 		case '0':
 			fmt.Println("Exiting...")
 			return
@@ -258,7 +261,7 @@ func SearchAllPasswordsMenu() {
 
 		fmt.Printf("----- List of Passwords -----\n")
 		for i, password := range passwords {
-			fmt.Printf("[%d] %s: %s\n", i+1, password.Name, password.Password)
+			fmt.Printf("[%d] %s\n", i+1, password.Name)
 		}
 
 		fmt.Println("\n[0] Go Back")
@@ -292,6 +295,65 @@ func SearchAllPasswordsMenu() {
 			}
 		} else {
 			fmt.Println("Password not copied.")
+		}
+
+		fmt.Println("Press any key to continue...")
+		_, _ = bufio.NewReader(os.Stdin).ReadByte()
+	}
+}
+
+func DeletePasswordMenu() {
+	passwords, err := services.SearchAllPasswordsDatabase()
+	if err != nil {
+		fmt.Printf("Error retrieving passwords: %v\n", err)
+		return
+	}
+
+	for {
+		utils.ClearTerminal()
+
+		fmt.Printf("----- Delete Password -----\n")
+		for i, password := range passwords {
+			fmt.Printf("[%d] %s\n", i+1, password.Name)
+		}
+
+		fmt.Println("\n[0] Go Back")
+		fmt.Printf("\nChoose a password to delete (enter the number): ")
+		var choice int
+		_, err := fmt.Scan(&choice)
+
+		if err != nil || choice < 0 || choice > len(passwords) {
+			fmt.Println("Invalid choice, please try again.")
+			continue
+		}
+
+		if choice == 0 {
+			fmt.Println("Exiting...")
+			break
+		}
+
+		passwordToDelete := passwords[choice-1].Name
+
+		fmt.Printf("Are you sure you want to delete '%s'? (y/n): ", passwordToDelete)
+		var confirmationInput string
+		fmt.Scan(&confirmationInput)
+		confirmationInput = strings.ToLower(confirmationInput)
+
+		if confirmationInput == "y" || confirmationInput == "yes" {
+			err := services.DeletePasswordByNameDatabase(passwordToDelete)
+			if err != nil {
+				fmt.Printf("Error deleting password: %v\n", err)
+			} else {
+				fmt.Printf("Password '%s' deleted successfully!\n", passwordToDelete)
+			}
+
+			passwords, err = services.SearchAllPasswordsDatabase()
+			if err != nil {
+				fmt.Printf("Error refreshing passwords: %v\n", err)
+				return
+			}
+		} else {
+			fmt.Println("Password not deleted.")
 		}
 
 		fmt.Println("Press any key to continue...")
