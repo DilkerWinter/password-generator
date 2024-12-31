@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"crypto/rand"
+	"database/sql"
 	"fmt"
 	"math/big"
 	"os"
@@ -194,15 +195,194 @@ func clearTerminal() {
 	cmd.Run()
 }
 
+func searchPasswordByNameDatabase(passwordName string) string {
+	db, err := database.Database()
+	if err != nil {
+		return fmt.Sprintf("Could not connect to database: %v", err)
+	}
+	defer db.Close()
+
+	query := "SELECT password FROM passwords WHERE password_name = $1"
+	row := db.QueryRow(query, passwordName)
+
+	var password string
+	err = row.Scan(&password)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return fmt.Sprintf("No password found with name: %v", passwordName)
+		}
+		return fmt.Sprintf("Could not retrieve password: %v", err)
+	}
+
+	return password
+}
+
+
+
+func searchPasswordByName () {
+	fmt.Printf("Insert the name of the password: ")
+	var passwordNameInput string
+	fmt.Scan(&passwordNameInput)
+
+	password := searchPasswordByNameDatabase(passwordNameInput)
+	fmt.Println("Senha: %s\n", password)
+	var copyToClipboard bool
+	for {
+		fmt.Printf("Wish to copy the password to clipboard? (y/n): ")
+		var clipboardInput string
+		fmt.Scan(&clipboardInput)
+
+		clipboardInput = strings.ToLower(clipboardInput)
+
+		if clipboardInput == "y" || clipboardInput == "yes" {
+			copyToClipboard = true
+			break
+		} else if clipboardInput == "n" || clipboardInput == "no" {
+			copyToClipboard = false
+			break
+		} else {
+			fmt.Println("Invalid input, please enter 'y', 'yes', 'n' or 'no'.\n")
+		}
+	}
+
+	if copyToClipboard {
+		err := clipboard.WriteAll(password)
+		if err != nil {
+			fmt.Printf("Error copying to clipboard:\n", err)
+			return
+		}
+		fmt.Printf("Text copied to clipboard\n")
+	}
+
+	fmt.Println("Press any key to continue...")
+	_, _ = bufio.NewReader(os.Stdin).ReadByte()
+
+}
+
+func searchAllPasswordsDatabase() ([]struct {
+    Name     string
+    Password string
+}, error) {
+	db, err := database.Database()
+	if err != nil {
+		return nil, fmt.Errorf("Could not connect to database: %v", err)
+	}
+	defer db.Close()
+
+	query := "SELECT password_name, password FROM passwords"
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, fmt.Errorf("could not retrieve passwords: %v", err)
+	}
+	defer rows.Close()
+
+	var passwords []struct {
+		Name     string
+		Password string
+	}
+
+	for rows.Next() {
+		var passwordName, password string
+		if err := rows.Scan(&passwordName, &password); err != nil {
+			return nil, fmt.Errorf("could not scan row: %v", err)
+		}
+		passwords = append(passwords, struct {
+			Name     string
+			Password string
+		}{
+			Name:     passwordName,
+			Password: password,
+		})
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating over rows: %v", err)
+	}
+
+	return passwords, nil
+}
+
+
+func searchAllPasswords() {
+	passwords, err := searchAllPasswordsDatabase()
+	if err != nil {
+		fmt.Printf("Error retrieving passwords: %v\n", err)
+		return
+	}
+
+	fmt.Printf("\n---- List of Passwords ----\n")
+	for i, password := range passwords {
+		fmt.Printf("[%d] %s: %s\n", i+1, password.Name, password.Password)
+	}
+
+	fmt.Printf("\nChoose a password to copy (enter the number): ")
+	var choice int
+	_, err = fmt.Scan(&choice)
+	if err != nil || choice < 1 || choice > len(passwords) {
+		fmt.Println("Invalid choice, please try again.")
+		return
+	}
+
+	passwordToCopy := passwords[choice-1].Password
+
+	fmt.Printf("Do you want to copy the password for '%s' to clipboard? (y/n): ", passwords[choice-1].Name)
+	var clipboardInput string
+	fmt.Scan(&clipboardInput)
+	clipboardInput = strings.ToLower(clipboardInput)
+
+	if clipboardInput == "y" || clipboardInput == "yes" {
+		err := clipboard.WriteAll(passwordToCopy)
+		if err != nil {
+			fmt.Printf("Error copying to clipboard: %v\n", err)
+		} else {
+			fmt.Printf("Password for '%s' copied to clipboard!\n", passwords[choice-1].Name)
+		}
+	} else {
+		fmt.Println("Password not copied.")
+	}
+
+	fmt.Println("Press any key to continue...")
+	_, _ = bufio.NewReader(os.Stdin).ReadByte()
+}
+
+
+func searchPasswordMenu() {
+	clearTerminal()
+	fmt.Printf("----Password Generator---- \n\n")
+	fmt.Printf("[1] - Search Passwords By Name\n")
+	fmt.Printf("[2] - Search All Passwords\n")
+	fmt.Printf("[3] - Go Back\n")
+
+	reader := bufio.NewReader(os.Stdin)
+	optionStr, _, err := reader.ReadRune()
+
+	if err != nil {
+		fmt.Println("Error reading input")
+		return
+	}
+
+	switch optionStr {
+	case '1':
+		searchPasswordByName()
+	case '2':
+		searchAllPasswords()
+	case '3':
+		return
+	default:
+		fmt.Println("Invalid option. Please choose a valid option.")
+	}
+
+}
+
 func main() {
 
 	for {
 		clearTerminal()
 
 		fmt.Printf("----Password Generator---- \n\n")
-		fmt.Printf("[1] Generate New Password\n")
-		fmt.Printf("[2] Search Password\n")
-		fmt.Printf("[3] Exit\n")
+		fmt.Printf("[1] - Generate New Password\n")
+		fmt.Printf("[2] - Search Password\n")
+		fmt.Printf("[3] - Exit\n")
 		fmt.Print("Choose an option: ")
 
 		reader := bufio.NewReader(os.Stdin)
@@ -217,7 +397,7 @@ func main() {
 		case '1':
 			addPassword()
 		case '2':
-			fmt.Println("\nYou selected: Search Password")
+			searchPasswordMenu()
 		case '3':
 			fmt.Println("Exiting...")
 			return
