@@ -3,7 +3,7 @@
 ## 📖 Desciption
 
 
-A simple and customizable Password Generator created in GoLang for use in the terminal. This tool allows you to generate strong passwords with different options, such as including uppercase letters and special characters, and it also provides functionality for storing and retrieving passwords from a PostgreSQL database.
+A simple and customizable Password Generator created in GoLang to run on the CLI. This tool allows you to generate strong passwords with different options, such as including uppercase letters and special characters, and it also provides functionality for storing and retrieving passwords from a PostgreSQL database.
 
 ## 💻 Requirements
 
