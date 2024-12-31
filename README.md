@@ -14,16 +14,22 @@ A simple and customizable Password Generator created in GoLang for use in the te
 
 1 - Clone the repository:
 
-```git clone git@github.com:DilkerWinter/password-generator.git ```
+```bash
+git clone git@github.com:DilkerWinter/password-generator.git 
+```
 
 2 - Change directory to the project
 
-```cd password-generator ```
+```bash
+cd password-generator
+```
 
 
 3 - Set up PostgreSQL database
 
-```sql CREATE DATABASE passwordgenerator; ```
+```sql
+ CREATE DATABASE passwordgenerator; 
+ ```
 
 4 - Create the table
 
@@ -45,7 +51,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func Database() (*sql.DB, error) {
+func Database() (*sql.DB, error) { //Change the username, password, db adress and db name to yours 
 	connStr := "postgres://username:password@localhost:5432/passwordgenerator?sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
@@ -63,19 +69,27 @@ func Database() (*sql.DB, error) {
 
 6 - Build the project
 
-```go build -o passwordgenerator main.go ```
+```bash
+go build -o passwordgenerator main.go
+ ```
 
 7 - Now you can run the app
 
-```./passwordgenerator```
+```bash
+./passwordgenerator
+```
 
 if you want to create a command line to use the app
 
-```sudo mv passwordgenerator /usr/local/bin/```
+```bash
+sudo mv passwordgenerator /usr/local/bin/
+```
 
 and verify if you have in your ~/.bashrc or ~/.zshrc the following line
 
-```export PATH="/usr/local/bin:$PATH"```
+```bash
+export PATH="/usr/local/bin:$PATH"
+```
 
 ## 🤖 Languages
 
