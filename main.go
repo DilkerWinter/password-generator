@@ -31,70 +31,92 @@ func passwordToDatabase(password string, passwordName string) error {
 }
 
 func addPassword() {
-	fmt.Printf("\n\nEnter the desired length for the password (number only): ")
-	var lengthInput string
-	fmt.Scan(&lengthInput)
+	var length int
+	var err error
 
-	length, err := strconv.Atoi(lengthInput)
-	if err != nil || length <= 0 {
-		fmt.Println("Invalid length.")
-		return
+	for {
+		fmt.Printf("\n\nEnter the desired length for the password (number only): ")
+		var lengthInput string
+		fmt.Scan(&lengthInput)
+
+		length, err = strconv.Atoi(lengthInput)
+		if err != nil || length <= 0 {
+			fmt.Println("Invalid length. Please enter a valid number greater than 0.")
+		} else {
+			break
+		}
 	}
-
-	fmt.Printf("Should the password include uppercase letters? (y/n): ")
-	var upperCaseLetters string
-	fmt.Scan(&upperCaseLetters)
-
-	upperCaseLetters = strings.ToLower(upperCaseLetters)
 
 	var includeUpperCaseLetters bool
-	if upperCaseLetters == "y" || upperCaseLetters == "yes" {
-		includeUpperCaseLetters = true
-	} else if upperCaseLetters == "n" || upperCaseLetters == "no" {
-		includeUpperCaseLetters = false
-	} else {
-		fmt.Println("Invalid input, please enter 'y', 'yes', 'n' or 'no'.")
-		return
-	}
+	for {
+		fmt.Printf("Should the password include uppercase letters? (y/n): ")
+		var upperCaseLetters string
+		fmt.Scan(&upperCaseLetters)
 
-	fmt.Printf("Should the password include special characters? (y/n): ")
-	var specialCharsInput string
-	fmt.Scan(&specialCharsInput)
-	
-	specialCharsInput = strings.ToLower(specialCharsInput)
+		upperCaseLetters = strings.ToLower(upperCaseLetters)
+
+		if upperCaseLetters == "y" || upperCaseLetters == "yes" {
+			includeUpperCaseLetters = true
+			break
+		} else if upperCaseLetters == "n" || upperCaseLetters == "no" {
+			includeUpperCaseLetters = false
+			break
+		} else {
+			fmt.Println("Invalid input, please enter 'y', 'yes', 'n' or 'no'.")
+		}
+	}
 
 	var includeSpecialChars bool
-	if specialCharsInput == "y" || specialCharsInput == "yes" {
-		includeSpecialChars = true
-	} else if specialCharsInput == "n" || specialCharsInput == "no" {
-		includeSpecialChars = false
-	} else {
-		fmt.Println("Invalid input, please enter 'y', 'yes', 'n' or 'no'.")
-		return
+	for {
+		fmt.Printf("Should the password include special characters? (y/n): ")
+		var specialCharsInput string
+		fmt.Scan(&specialCharsInput)
+
+		specialCharsInput = strings.ToLower(specialCharsInput)
+
+		if specialCharsInput == "y" || specialCharsInput == "yes" {
+			includeSpecialChars = true
+			break
+		} else if specialCharsInput == "n" || specialCharsInput == "no" {
+			includeSpecialChars = false
+			break
+		} else {
+			fmt.Println("Invalid input, please enter 'y', 'yes', 'n' or 'no'.")
+		}
 	}
 
-	fmt.Printf("What is the purpose or name for this password? ")
 	var passwordName string
-	fmt.Scan(&passwordName)
+	for {
+		fmt.Printf("What is the purpose or name for this password? ")
+		fmt.Scan(&passwordName)
 
-	password := passwordGenerator(length, includeSpecialChars,includeUpperCaseLetters, passwordName)
+		if len(passwordName) > 0 {
+			break
+		} else {
+			fmt.Println("Password name cannot be empty. Please enter a valid name.")
+		}
+	}
 
-	fmt.Printf("Generated Password: %s\n", password)  
-
-	fmt.Printf("Wish to copy the password to clipboard? (y/n): ")
-	var clipboardInput string
-	fmt.Scan(&clipboardInput)
-
-	clipboardInput = strings.ToLower(clipboardInput)
+	password := passwordGenerator(length, includeSpecialChars, includeUpperCaseLetters, passwordName)
+	fmt.Printf("Generated Password: %s\n", password)
 
 	var copyToClipboard bool
-	if clipboardInput == "y" || clipboardInput == "yes" {
-		copyToClipboard = true
-	} else if clipboardInput == "n" || clipboardInput == "no" {
-		copyToClipboard = false
-	} else {
-		fmt.Println("Invalid input, please enter 'y', 'yes', 'n' or 'no'.\n")
-		return
+	for {
+		fmt.Printf("Wish to copy the password to clipboard? (y/n): ")
+		var clipboardInput string
+		fmt.Scan(&clipboardInput)
+
+		clipboardInput = strings.ToLower(clipboardInput)
+
+		if clipboardInput == "y" || clipboardInput == "yes" {
+			copyToClipboard = true
+			break
+		} else if clipboardInput == "n" || clipboardInput == "no" {
+			copyToClipboard = false
+			break
+		} else {
+			fmt.Println("Invalid input, please enter 'y', 'yes', 'n' or 'no'.\n")
+		}
 	}
 
 	if copyToClipboard {
@@ -106,20 +128,23 @@ func addPassword() {
 		fmt.Printf("Text copied to clipboard\n")
 	}
 
-	fmt.Println("Want to store that Password? (y/n): ")
-	var storePasswordInput string
-	fmt.Scan(&storePasswordInput)
-
-	storePasswordInput = strings.ToLower(storePasswordInput)
-
 	var storePassword bool
-	if storePasswordInput == "y" || storePasswordInput == "yes" {
-		storePassword = true
-	} else if storePasswordInput == "n" || storePasswordInput == "no" {
-		storePassword = false
-	} else {
-		fmt.Println("Invalid input, please enter 'y', 'yes', 'n' or 'no'.\n")
-		return
+	for {
+		fmt.Printf("Want to store that Password? (y/n): ")
+		var storePasswordInput string
+		fmt.Scan(&storePasswordInput)
+
+		storePasswordInput = strings.ToLower(storePasswordInput)
+
+		if storePasswordInput == "y" || storePasswordInput == "yes" {
+			storePassword = true
+			break
+		} else if storePasswordInput == "n" || storePasswordInput == "no" {
+			storePassword = false
+			break
+		} else {
+			fmt.Println("Invalid input, please enter 'y', 'yes', 'n' or 'no'.\n")
+		}
 	}
 
 	if storePassword {
@@ -128,11 +153,11 @@ func addPassword() {
 			fmt.Printf("Error storing password in database: %v\n", err)
 		} else {
 			fmt.Println("Password stored in database successfully.")
-			return
 		}
 	}
-	return
-	
+
+	fmt.Println("\nPress any key to continue...")
+	_, _ = bufio.NewReader(os.Stdin).ReadByte()
 }
 
 func passwordGenerator(length int,includeSpecialChar bool,includeUpperCaseLetters bool, passwordName string) string {
@@ -170,31 +195,34 @@ func clearTerminal() {
 }
 
 func main() {
-	clearTerminal()
 
-	fmt.Printf("----Password Generator---- \n\n")
-	fmt.Printf("[1] Generate New Password\n")
-	fmt.Printf("[2] Search Password\n")
-	fmt.Printf("[3] Exit\n")
-	fmt.Print("Choose an option: ")
+	for {
+		clearTerminal()
 
-	reader := bufio.NewReader(os.Stdin)
-	optionStr, _, err := reader.ReadRune()
+		fmt.Printf("----Password Generator---- \n\n")
+		fmt.Printf("[1] Generate New Password\n")
+		fmt.Printf("[2] Search Password\n")
+		fmt.Printf("[3] Exit\n")
+		fmt.Print("Choose an option: ")
 
-	if err != nil {
-		fmt.Println("Error reading input")
-		return
-	}
+		reader := bufio.NewReader(os.Stdin)
+		optionStr, _, err := reader.ReadRune()
 
-	switch optionStr {
-	case '1':
-		addPassword()
-	case '2':
-		fmt.Println("\nYou selected: Search Password")
-	case '3':
-		fmt.Println("Exiting...")
-		return
-	default:
-		fmt.Println("Invalid option. Please choose a valid option.")
+		if err != nil {
+			fmt.Println("Error reading input")
+			return
+		}
+
+		switch optionStr {
+		case '1':
+			addPassword()
+		case '2':
+			fmt.Println("\nYou selected: Search Password")
+		case '3':
+			fmt.Println("Exiting...")
+			return
+		default:
+			fmt.Println("Invalid option. Please choose a valid option.")
+		}
 	}
 }
